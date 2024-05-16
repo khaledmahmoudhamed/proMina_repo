@@ -220,35 +220,3 @@ class _GalleryScreenState extends State<GalleryScreen> {
 }
 
 container() {}
-
-/*
-Center(
-child: Column(
-children: [
-reusedButton(
-child: '',
-backGroundColor:
-Colors.grey,
-width: 80.w,
-widget: Icon(Icons
-    .photo_album_outlined),
-fontSize: 14.sp,
-fontColor: Colors.black,
-borderColor: Colors.white,
-radius: 30.r,
-onTap: () {}),
-reusedButton(
-child: '',
-backGroundColor:
-Colors.grey,
-width: 80.w,
-widget: Icon(Icons
-    .photo_album_outlined),
-fontSize: 14.sp,
-fontColor: Colors.black,
-borderColor: Colors.white,
-radius: 30.r,
-onTap: () {}),
-],
-),
-),*/

@@ -8,47 +8,6 @@ import 'package:pro_mina/view/screens/login.dart';
 import 'controller/data/remote/dio_helper.dart';
 
 void main() {
-  /* Map<String, dynamic> response = {
-    "items": [
-      {
-        "request": {
-          "method": "POST",
-          "header": [],
-          "body": {
-            "mode": "formdata",
-            "formdata": [
-              {
-                "key": "email",
-                "value": "swaniawski.lauren@example.net",
-                "type": "text"
-              },
-              {"key": "password", "value": "password", "type": "text"}
-            ]
-          },
-          "url": {
-            "raw": "{{url}}auth/login",
-            "host": ["{{url}}auth"],
-            "path": ["login"]
-          }
-        },
-      }
-    ]
-  };
-
-  Map<String, dynamic> data = {
-    "key": "email",
-    "value": "khalled@gmail.com",
-    "type": "text"
-  };
-  List<Map> newMap = response['items'][0]['request']['body']['formdata'];
-
-  List<Map> list = [
-    {"key": "email", "value": "swaniawski.lauren@example.net", "type": "text"},
-    {"key": "password", "value": "password", "type": "text"}
-  ];
-  newMap.add(data);
-  print("####### $newMap");*/
-
   runApp(const MyApp());
   DioHelper.init();
 
@@ -64,7 +23,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // This widget is the root of your application.
   @override
   void initState() {
     setState(() {

@@ -43,16 +43,13 @@ class AppCubit extends Cubit<AppState> {
                 print("not valid email or password");
                 return AwesomeDialog(
                   context: context,
-
                   dialogType: DialogType.error,
                   animType: AnimType.rightSlide,
                   title: 'Error',
                   descTextStyle:
                       TextStyle(fontSize: 18.sp, color: Colors.white),
                   desc: 'not valid email or password',
-                  // btnCancelOnPress: () {},
                   dialogBackgroundColor: Colors.green.withOpacity(0.1),
-                  //  btnOkOnPress: () {},
                 )..show();
               }
               emit(UserLoginSuccessState());
