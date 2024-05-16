@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,37 +20,42 @@ class AppCubit extends Cubit<AppState> {
 
   DioHelper dioHelper = DioHelper();
   loginData(
-      {String? email, String? password, required BuildContext context}) async {
+      {String? email,
+      String password = 'password',
+      required BuildContext context}) async {
     try {
       emit(AppLoadingState());
-      var response = await dioHelper.postData(
+      Response response = await dioHelper.postData(
           endPoint: endPoint, data: {"email": email, "password": password});
       if (response.statusCode == 200) {
-        emit(SuccessUserLoginState());
+        emit(UserLoginSuccessState());
+        print(
+            "####################### ${response.statusCode} ####################");
         for (int i = 0; i < response.data['item'].length; i++) {
           if (response.data['item'][i]['name'] == 'Login') {
-            print("################## Login ####################");
             var newResponse =
                 response.data['item'][i]['request']['body']['formdata'];
-            if (newResponse[i]['key'] == 'email' ||
-                newResponse[i]['key'] == 'password') {
+            if (newResponse[i]['key'] == 'email') {
               if (newResponse[i]['value'] == email) {
-                print("vaild email");
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const GalleryScreen()),
-                  (route) => false,
-                );
-              } else if (newResponse[i]['value'] == password) {
-                print("vaild password");
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const GalleryScreen()));
               } else {
                 print("not valid email or password");
-                return showMyDialog(
-                    context: context,
-                    title: const Text('Error'),
-                    line1: const Text('invalid email or password.'),
-                    line2: const Text('please enter valid email or password '),
-                    okButton: const Text("ok"));
+                return AwesomeDialog(
+                  context: context,
+
+                  dialogType: DialogType.error,
+                  animType: AnimType.rightSlide,
+                  title: 'Error',
+                  descTextStyle:
+                      TextStyle(fontSize: 18.sp, color: Colors.white),
+                  desc: 'not valid email or password',
+                  // btnCancelOnPress: () {},
+                  dialogBackgroundColor: Colors.green.withOpacity(0.1),
+                  //  btnOkOnPress: () {},
+                )..show();
               }
+              emit(UserLoginSuccessState());
             }
           } else {
             print(
@@ -56,18 +63,17 @@ class AppCubit extends Cubit<AppState> {
           }
         }
       } else {
-        emit(FailedUserLoginState());
         print("################ ${response.statusMessage}");
+        emit(UserLoginFailedState());
       }
     } catch (e) {
-      emit(ErrorUserLoginState());
       rethrow;
     }
   }
 
   File? file;
   ImagePicker imagePicker = ImagePicker();
-  pickImage({required ImageSource source}) async {
+  pickImageFromGallery({required ImageSource source}) async {
     var pickedImage = await imagePicker.pickImage(source: source);
     if (pickedImage != null) {
       file = File(pickedImage.path);
@@ -76,8 +82,8 @@ class AppCubit extends Cubit<AppState> {
     return null;
   }
 
-  List images = [];
-  uploadImage({
+  List imageResponse = [];
+  Future<List> uploadImage({
     required BuildContext context,
   }) async {
     try {
@@ -86,49 +92,24 @@ class AppCubit extends Cubit<AppState> {
         endPoint: endPoint,
       );
       if (response.statusCode == 200) {
+        Map<String, dynamic> images = {
+          "key": "img",
+          "type": "file",
+          "src": file
+        };
+        imageResponse.add(images);
         emit(ImageUploadingSuccessfullyState());
-        for (int i = 0; i < response.data['item'].length; i++) {
-          if (response.data['item'][i]['name'] == 'Upload Image') {
-            var newResponse =
-                response.data['item'][i]['request']['body']['formdata'];
-            Map<String, dynamic> imageData = {
-              "key": "img",
-              "type": 'file',
-              "src": file!.path
-            };
-            images.add(imageData);
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return Container(
-                    child: Text("Image Uploaded Successfully"),
-                  );
-                });
-            images = newResponse;
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const GalleryScreen()),
-              (route) => false,
-            );
-            return newResponse;
-          } else {
-            print("########################## ");
-          }
-        }
+        print("################### image response $imageResponse");
+        /* Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => const GalleryScreen()));*/
       } else {
         emit(FailedImageUploadingState());
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return Center(
-                child: Container(
-                  color: Colors.grey,
-                  child: Text("Failed To Uploaded Image"),
-                ),
-              );
-            });
+
         print("################ ${response.statusMessage}");
       }
+      return imageResponse;
     } catch (e) {
+      print(" ############################ Rethrow Error");
       rethrow;
     }
   }

@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (state is SuccessUserLoginState) {
+                    } else {
                       return Center(
                         child: Container(
                           padding: EdgeInsets.only(
@@ -147,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             Icons.remove_red_eye_outlined),
                                   ),
                                   validator: (val) {
-                                    if (passwordController.text.length < 8) {
+                                    if (passwordController.text.length < 6) {
                                       return 'password must not be less 8 char';
                                     }
                                     return null;
@@ -177,14 +177,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                      );
-                    } else if (state is FailedImageUploadingState) {
-                      return const AlertDialog(
-                        content: Text("There is Something Went Wrong"),
-                      );
-                    } else {
-                      return const AlertDialog(
-                        content: Center(child: Text("Error")),
                       );
                     }
                   },

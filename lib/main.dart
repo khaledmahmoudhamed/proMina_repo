@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pro_mina/controller/cubit/app_cubit.dart';
-import 'package:pro_mina/view/screens/gallery_screen.dart';
+import 'package:pro_mina/view/screens/login.dart';
 
 import 'controller/data/remote/dio_helper.dart';
 
@@ -67,17 +67,23 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   void initState() {
-    AppCubit cubit = AppCubit()..loginData(context: context);
-    cubit.uploadImage(context: context);
+    setState(() {
+      AppCubit cubit = AppCubit()..loginData(context: context);
+      cubit.uploadImage(context: context);
+    });
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return BlocProvider(
       create: (context) => AppCubit()
         ..loginData(context: context)
-        ..uploadImage(context: context),
+        ..uploadImage(
+          context: context,
+        ),
       child: ScreenUtilInit(
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -86,7 +92,7 @@ class _MyAppState extends State<MyApp> {
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
               useMaterial3: true,
             ),
-            home: const GalleryScreen()),
+            home: const LoginScreen()),
       ),
     );
   }

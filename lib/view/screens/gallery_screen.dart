@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,16 +27,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
             BlocBuilder<AppCubit, AppState>(
               builder: (context, state) {
                 if (state is ImageLoadingState) {
-                  return const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ],
+                  return const Center(
+                    child: CircularProgressIndicator(),
                   );
-                } else if (state is ImageUploadingSuccessfullyState) {
+                } else {
                   return Column(
                     children: [
                       Row(
@@ -87,7 +82,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                       color: Colors.white,
                                       size: 25.r,
                                     )),
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
                                 width: 130.w,
                                 fontColor: Colors.black.withOpacity(0.7),
                                 radius: 30.r),
@@ -97,51 +94,79 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                 child: '  Upload',
                                 backGroundColor: Colors.white,
                                 onTap: () {
-                                  cubit.showMyDialog(
+                                  setState(() {
+                                    AwesomeDialog(
                                       context: context,
-                                      line1: reusedButton(
-                                          child: '   Gallery',
-                                          backGroundColor:
-                                              const Color(0xFFEFD8F9),
-                                          width: 60.w,
-                                          widget: Icon(
-                                            Icons.image,
-                                            color: const Color(0xFFC678EE),
-                                            size: 30.r,
+                                      dialogType: DialogType.noHeader,
+                                      animType: AnimType.rightSlide,
+                                      dialogBackgroundColor:
+                                          Colors.white.withOpacity(0.1),
+                                      body: Column(
+                                        children: [
+                                          Center(
+                                            child: Column(
+                                              children: [
+                                                SizedBox(
+                                                  height: 25.h,
+                                                ),
+                                                reusedButton(
+                                                    child: '   Gallery',
+                                                    backGroundColor:
+                                                        const Color(0xFFEFD8F9),
+                                                    width: 140.w,
+                                                    widget: const Icon(
+                                                      Icons
+                                                          .photo_album_outlined,
+                                                      color: Color(0xFFC77BEE),
+                                                    ),
+                                                    fontSize: 14.sp,
+                                                    fontColor: Colors.black,
+                                                    borderColor: Colors.white,
+                                                    radius: 30.r,
+                                                    onTap: () {
+                                                      cubit
+                                                          .pickImageFromGallery(
+                                                              source:
+                                                                  ImageSource
+                                                                      .gallery);
+                                                      cubit.uploadImage(
+                                                          context: context);
+                                                    }),
+                                                SizedBox(
+                                                  height: 15.h,
+                                                ),
+                                                reusedButton(
+                                                    child: '   Camera',
+                                                    backGroundColor:
+                                                        const Color(0xFFC77BEE),
+                                                    width: 140.w,
+                                                    widget: const Icon(
+                                                      Icons.camera_alt_outlined,
+                                                      color: Color(0xFF568DCD),
+                                                    ),
+                                                    fontSize: 14.sp,
+                                                    fontColor: Colors.black,
+                                                    borderColor: Colors.white,
+                                                    radius: 30.r,
+                                                    onTap: () {
+                                                      cubit
+                                                          .pickImageFromGallery(
+                                                              source:
+                                                                  ImageSource
+                                                                      .camera);
+                                                      cubit.uploadImage(
+                                                          context: context);
+                                                    }),
+                                                SizedBox(
+                                                  height: 25.h,
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                          fontSize: 16.sp,
-                                          fontColor:
-                                              Colors.black.withOpacity(0.7),
-                                          borderColor: const Color(0xFFEFD8F9),
-                                          radius: 30.r,
-                                          onTap: () {
-                                            cubit.pickImage(
-                                                source: ImageSource.gallery);
-                                            cubit.uploadImage(
-                                              context: context,
-                                            );
-                                          }),
-                                      line2: reusedButton(
-                                          child: '   Camera',
-                                          backGroundColor:
-                                              const Color(0xFFEBF6FF),
-                                          width: 60.w,
-                                          widget: Icon(
-                                            Icons.camera_alt,
-                                            color: const Color(0xFFC678EE),
-                                            size: 30.r,
-                                          ),
-                                          fontSize: 16.sp,
-                                          fontColor:
-                                              Colors.black.withOpacity(0.7),
-                                          borderColor: const Color(0xFFEFD8F9),
-                                          radius: 30.r,
-                                          onTap: () {
-                                            cubit.pickImage(
-                                                source: ImageSource.camera);
-                                            cubit.uploadImage(context: context);
-                                          }),
-                                      okButton: const SizedBox());
+                                        ],
+                                      ),
+                                    ).show();
+                                  });
                                 },
                                 width: 130.w,
                                 fontSize: 14.sp,
@@ -164,7 +189,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       Container(
                         padding: EdgeInsets.only(left: 15.w, right: 15.w),
                         child: GridView.builder(
-                          itemCount: cubit.images.length,
+                          itemCount: cubit.imageResponse.length,
                           shrinkWrap: true,
                           physics: const AlwaysScrollableScrollPhysics(),
                           scrollDirection: Axis.vertical,
@@ -174,22 +199,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                   mainAxisSpacing: 10,
                                   crossAxisCount: 3),
                           itemBuilder: (BuildContext context, int index) {
-                            return cubit.file != null
+                            return cubit.imageResponse[index]['src'] != null
                                 ? SizedBox(
                                     height: 60.h,
                                     width: 0.w,
-                                    child: Image.file(cubit.file!))
-                                : const SizedBox();
+                                    child: Image.file(
+                                        cubit.imageResponse[index]['src']))
+                                : SizedBox();
                           },
                         ),
                       )
                     ],
-                  );
-                } else {
-                  return const Center(
-                    child: AlertDialog(
-                      content: Text("Error"),
-                    ),
                   );
                 }
               },
@@ -198,3 +218,37 @@ class _GalleryScreenState extends State<GalleryScreen> {
         ));
   }
 }
+
+container() {}
+
+/*
+Center(
+child: Column(
+children: [
+reusedButton(
+child: '',
+backGroundColor:
+Colors.grey,
+width: 80.w,
+widget: Icon(Icons
+    .photo_album_outlined),
+fontSize: 14.sp,
+fontColor: Colors.black,
+borderColor: Colors.white,
+radius: 30.r,
+onTap: () {}),
+reusedButton(
+child: '',
+backGroundColor:
+Colors.grey,
+width: 80.w,
+widget: Icon(Icons
+    .photo_album_outlined),
+fontSize: 14.sp,
+fontColor: Colors.black,
+borderColor: Colors.white,
+radius: 30.r,
+onTap: () {}),
+],
+),
+),*/
